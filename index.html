@@ -1,26 +1,48 @@
-<!doctype html>
-<html lang="en">
-
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PawPal!</title>
-  <link href='/style.css' rel='stylesheet'>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home - PawPal!</title>
+  <link rel="stylesheet" href="https://unpkg.com/98.css">
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
+  <style>
+    * {
+      image-rendering: pixelated;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    table {
+      border-collapse: separate;
+      background-color: transparent;
+    }
+
+    #post-table {
+      background-color: rgb(221, 221, 221);
+    }
+  </style>
 </head>
 
 <body bgcolor="#BFBDC0">
-  <table align="CENTER" width="800">
+  <table align="center" border="0" cellpadding="0" cellspacing="0" width="640">
     <tbody>
       <tr>
         <td>
-          <center><h1>PawPal</h1></center>
-          <button onclick="console.log('hello');">Press me</button>
+          <h4>Latest Home Posts - PawPal</h4>
           <hr>
+          <table id="post-table" bgcolor="#DDDDDD" border="1" cellpadding="2" cellspacing="2" width="100%"></table>
+          <hr>
+          <footer style="text-align: center; margin-top: 20px;">
+            &copy; 1998 PawPal!
+          </footer>
         </td>
       </tr>
     </tbody>
   </table>
-  <script defer type="text/javascript" src="/main.js"></script>
-</body>
 
+  <script type="module" src="displayposts.js">
+  </script>
+
+</body>
 </html>
