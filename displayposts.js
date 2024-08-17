@@ -16,6 +16,18 @@ document.addEventListener("DOMContentLoaded", () => {
   updateTable();
 });
 
+function convertMarkdownToHTML(text) {
+  text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); // bold
+  text = text.replace(/__(.*?)__/g, '<u>$1</u>'); // underline
+  text = text.replace(/~~(.*?)~~/g, '<strike>$1</strike>'); // strikethrough
+  text = text.replace(/\*(.*?)\*/g, '<em>$1</em>'); // italic
+  text = text.replace(/\^\^(.*?)\^\^/g, '<marquee>$1</marquee>'); // marquee
+  text = text.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>'); // links
+  text = text.replace(/```(.*?)```/gs, '<pre><code>$1</code></pre>'); // code blocks
+  text = text.replace(/https?:\/\/[^\s]+/g, `<a href="$&">$&</a>`); // URLs
+  return text;
+}
+
 function updateTable() {
   const table = document.getElementById("post-table");
   if (!table) {
@@ -55,15 +67,8 @@ function updateTable() {
     });
     
     contentCell.innerHTML = sanitizedContent;
-    contentCell.innerHTML = contentCell.innerHTML.replace(/https?:\/\/[^\s]+/g, `<a href="$&">$&</a>`)
-    contentCell.innerHTML = contentCell.innerHTML.replace(/(\*\*|__|~~|\*)/g, (match) => {
-      if (match === '**') return '<strong>';
-      if (match === '__') return '<u>';
-      if (match === '~~') return '<strike>';
-      if (match === '*') return '<em>';
-      return match;
-    });
-
+    contentCell.innerHTML = convertMarkdownToHTML(contentCell.innerHTML);
+  
     contentCell.style.wordWrap = 'break-word';
     contentCell.style.wordBreak = 'break-all';
     contentCell.style.whiteSpace = 'pre-wrap';
