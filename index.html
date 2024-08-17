@@ -1,5 +1,7 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,6 +23,26 @@
     #post-table {
       background-color: rgb(221, 221, 221);
     }
+
+    rainbow {
+      color: rgba(255, 255, 255, 0.5);
+      background: linear-gradient(to right,
+          red, orange, yellow, green, blue, indigo, violet, indigo, blue, green, yellow, orange, red);
+      background-size: 500%;
+      animation: rainbow-flow infinite linear 36s;
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    @keyframes rainbow-flow {
+      0% {
+        background-position: 50% 0%;
+      }
+
+      100% {
+        background-position: -200%;
+      }
+    }
   </style>
 </head>
 
@@ -31,7 +53,8 @@
         <td>
           <h4>Latest Home Posts - PawPal</h4>
           <hr>
-          <table id="post-table" bgcolor="#DDDDDD" border="1" cellpadding="2" cellspacing="2" width="100%"></table>
+          <table id="post-table" bgcolor="#DDDDDD" border="1" cellpadding="2" cellspacing="2" width="100%">
+          </table>
           <hr>
           <footer style="text-align: center; margin-top: 20px;">
             &copy; 1998 PawPal!
@@ -41,8 +64,7 @@
     </tbody>
   </table>
 
-  <script type="module" src="displayposts.js">
-  </script>
-
+  <script language="Javascript" type="module" src="displayposts.js"></script>
 </body>
+
 </html>
