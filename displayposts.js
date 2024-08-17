@@ -80,7 +80,7 @@ function updateTable() {
 
     userImageCell.innerHTML = `
         <img src="https://uploads.meower.org/icons/${post.author.avatar}" width="50" height="50" alt="Icon">
-        <center><b>${post.author._id}</b></center>
+        <div><b>${post.author._id}</b></div>
     `;
 
     const sanitizedContent = DOMPurify.sanitize(post.p, {
