@@ -6,7 +6,7 @@ const ws = new WebSocket("wss://server.meower.org/?v=1");
 
 fetch('https://api.meower.org/home').then(response => response.json()).then(data => {
   posts.push(...data.autoget);
-  updateTable();
+  updateTable(); // Initial table population
 });
 
 ws.onmessage = function(event) {
@@ -14,22 +14,21 @@ ws.onmessage = function(event) {
   console.log("Received message:", data);
   if (data.cmd === 'post') {
     posts.unshift(data.val);
-    updateTable();
+    updateTable(); // Update table for new posts
   } else if (data.cmd === 'update_post') {
     const index = posts.findIndex(post => post._id === data.val._id);
     if (index !== -1) {
       posts[index] = data.val;
-      updateTable();
-    } else if (data.cmd === 'delete_post') {
-      const index = posts.findIndex(post => post._id === data.val._id);
-      if (index !== -1) {
-        posts.splice(index, 1);
-        updateTable();
-      }
+      updateTable(); // Update table with modified posts
+    }
+  } else if (data.cmd === 'delete_post') {
+    const index = posts.findIndex(post => post._id === data.val._id);
+    if (index !== -1) {
+      posts.splice(index, 1);
+      updateTable(); // Update table after deleting posts
     }
   }
 };
-
 
 document.onreadystatechange = function () {
   if (document.readyState === 'complete') {
@@ -44,25 +43,26 @@ function updateTable() {
     return;
   }
 
+  // Clear existing rows
   table.innerHTML = '';
 
-  posts.forEach(function(post) {
-    const row1 = table.insertRow();
-    const userImageCell = row1.insertCell();
-    const contentCell = row1.insertCell();
+  posts.forEach((post) => {
+    const row = table.insertRow();
+    const userImageCell = row.insertCell();
+    const contentCell = row.insertCell();
 
     const cellWidth = '50px';
     userImageCell.style.width = cellWidth;
-    contentCell.style.width = 'calc(100% - ' + cellWidth + ')';
+    contentCell.style.width = `calc(100% - ${cellWidth})`;
 
     userImageCell.innerHTML = `
-        <img src="https://uploads.meower.org/icons/${post.author.avatar}" width="50" height="50" alt="Icon"></img>
-        <hr>
-        <div><b>${post.author._id}</b></div>
+      <img src="${post.author.avatar ? 'https://uploads.meower.org/icons/' + post.author.avatar : 'defaultpfp.png'}" width="50" height="50" alt="Icon">
+      <hr>
+      <div><font color="${post.author.avatar_color}">${post.author._id}</font></div>
     `;
 
     const sanitizedContent = DOMPurify.sanitize(post.p);
-    const icon = userImageCell.querySelector('img')
+    const icon = userImageCell.querySelector('img');
 
     icon.addEventListener('mouseover', async () => {
       icon.style.cursor = 'help';
@@ -72,23 +72,20 @@ function updateTable() {
           icon.title = `User: ${userInfo._id}\nBio: ${userInfo.quote}\nDate Joined: ${new Date(userInfo.created * 1000)}`;
         }
       } catch (error) {
-          console.error("Error fetching user data:", error); 
-          icon.title = "User info not available"; 
+        console.error("Error fetching user data:", error);
+        icon.title = "User info not available";
       }
-
-    });  
-
-    icon.addEventListener('mouseout', () => {
-        icon.style.cursor = 'pointer';
     });
 
-    contentCell.innerHTML = sanitizedContent + ' <hr>' + new Date(post.t.e * 1000);
-    contentCell.innerHTML = convertMarkdownToHTML(contentCell.innerHTML);
+    icon.addEventListener('mouseout', () => {
+      icon.style.cursor = 'pointer';
+    });
 
+    contentCell.innerHTML = convertMarkdownToHTML(sanitizedContent) + '<hr>' + new Date(post.t.e * 1000);
     contentCell.style.wordWrap = 'break-word';
     contentCell.style.wordBreak = 'break-all';
     contentCell.style.whiteSpace = 'pre-wrap';
     userImageCell.style.padding = '5px';
     contentCell.style.padding = '5px';
-});
+  });
 }
