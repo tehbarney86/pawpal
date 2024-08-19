@@ -38,8 +38,13 @@ export function convertMarkdownToHTML(text) {
     .replace(/([a-z]+:\/\/[^\s]+)/g, match => `<a href="${match}">${match}</a>`) // URLs
     .replace(/<(a)?:(\w+):(\d+)>/gi, (match, a, name, id) => {
       const ext = a ? 'gif' : 'webp'; 
-      return `<img src="https://cdn.discordapp.com/emojis/${id}.${ext}?size=128&quality=lossless" alt="${name}">`;
+      return `<img class="emoji" src="https://cdn.discordapp.com/emojis/${id}.${ext}?size=128&quality=lossless" alt="${name}">`;
     }); // Discord emojis
+
+  // Meower Emoji 
+    text = text.replace(/<:(\w+)>/g, (match, id) => {
+      return `<img class="emoji" src="https://uploads.meower.org/emojis/${id}" alt="Meower Emoji">`;
+    });
 
   // Tables
   text = text.replace(/(?:\|(.+?)\|)\n(?:\|[-:]+[-|:]+\|)\n((?:\|.*\|\n?)*)/g, (headers, rows) => {

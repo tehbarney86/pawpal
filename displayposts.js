@@ -4,38 +4,46 @@ import { convertMarkdownToHTML } from './markdown.js';
 const posts = [];
 const ws = new WebSocket("wss://server.meower.org/?v=1");
 
-fetch('https://api.meower.org/home').then(response => response.json()).then(data => {
-  posts.push(...data.autoget);
-  updateTable(); // Initial table population
-});
+// Fetch initial posts
+fetch('https://api.meower.org/home')
+  .then(response => response.json())
+  .then(data => {
+    posts.push(...data.autoget);
+    updateTable();
+  })
+  .catch(error => console.error("Error fetching posts:", error));
 
-ws.onmessage = function(event) {
+// Decode HTML entities
+function decodeHTML(html) {
+  const txt = document.createElement("textarea");
+  txt.innerHTML = html;
+  return txt.value;
+}
+
+// WebSocket message handling
+ws.onmessage = event => {
   const data = JSON.parse(event.data);
   console.log("Received message:", data);
-  if (data.cmd === 'post') {
-    posts.unshift(data.val);
-    updateTable(); // Update table for new posts
-  } else if (data.cmd === 'update_post') {
-    const index = posts.findIndex(post => post._id === data.val._id);
-    if (index !== -1) {
-      posts[index] = data.val;
-      updateTable(); // Update table with modified posts
-    }
-  } else if (data.cmd === 'delete_post') {
-    const index = posts.findIndex(post => post._id === data.val._id);
-    if (index !== -1) {
-      posts.splice(index, 1);
-      updateTable(); // Update table after deleting posts
-    }
+
+  switch (data.cmd) {
+    case 'post':
+      posts.unshift(data.val);
+      break;
+    case 'update_post':
+      const updateIndex = posts.findIndex(post => post._id === data.val._id);
+      if (updateIndex !== -1) posts[updateIndex] = data.val;
+      break;
+    case 'delete_post':
+      const deleteIndex = posts.findIndex(post => post._id === data.val._id);
+      if (deleteIndex !== -1) posts.splice(deleteIndex, 1);
+      break;
+    default:
+      console.warn("Unknown command:", data.cmd);
   }
+  updateTable();
 };
 
-document.onreadystatechange = function () {
-  if (document.readyState === 'complete') {
-    updateTable();
-  }
-};
-
+// Update the table with posts
 function updateTable() {
   const table = document.getElementById("post-table");
   if (!table) {
@@ -43,49 +51,52 @@ function updateTable() {
     return;
   }
 
-  // Clear existing rows
   table.innerHTML = '';
-
-  posts.forEach((post) => {
+  
+  posts.forEach(post => {
     const row = table.insertRow();
     const userImageCell = row.insertCell();
     const contentCell = row.insertCell();
 
-    const cellWidth = '50px';
-    userImageCell.style.width = cellWidth;
-    contentCell.style.width = `calc(100% - ${cellWidth})`;
-
-    userImageCell.innerHTML = `
-      <img src="${post.author.avatar ? 'https://uploads.meower.org/icons/' + post.author.avatar : 'defaultpfp.png'}" width="50" height="50" alt="Icon">
-      <hr>
-      <div><font color="${post.author.avatar_color}">${post.author._id}</font></div>
-    `;
-
-    const sanitizedContent = DOMPurify.sanitize(post.p);
-    const icon = userImageCell.querySelector('img');
-
-    icon.addEventListener('mouseover', async () => {
-      icon.style.cursor = 'help';
-      try {
-        if (!icon.title) {
-          const userInfo = await userData(post.author._id);
-          icon.title = `User: ${userInfo._id}\nBio: ${userInfo.quote}\nDate Joined: ${new Date(userInfo.created * 1000)}`;
-        }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        icon.title = "User info not available";
-      }
-    });
-
-    icon.addEventListener('mouseout', () => {
-      icon.style.cursor = 'pointer';
-    });
-
-    contentCell.innerHTML = convertMarkdownToHTML(sanitizedContent) + '<hr>' + new Date(post.t.e * 1000);
+    // Style cells
+    userImageCell.style.width = '50px';
+    contentCell.style.width = 'calc(100% - 50px)';
+    userImageCell.style.padding = '5px';
+    contentCell.style.padding = '5px';
     contentCell.style.wordWrap = 'break-word';
     contentCell.style.wordBreak = 'break-all';
     contentCell.style.whiteSpace = 'pre-wrap';
-    userImageCell.style.padding = '5px';
-    contentCell.style.padding = '5px';
+
+    // User avatar and info
+    const avatarUrl = post.author.avatar ? `https://uploads.meower.org/icons/${post.author.avatar}` : 'defaultpfp.png';
+    const userColor = post.author.avatar_color || '#000';
+    userImageCell.innerHTML = `
+      <img src="${avatarUrl}" width="50" height="50" alt="Icon">
+      <hr>
+      <b><font color="${userColor}">${post.author._id}</font></b>
+    `;
+
+    // Fetch user info on hover
+    const icon = userImageCell.querySelector('img');
+    icon.addEventListener('mouseover', async () => {
+      icon.style.cursor = 'help';
+      if (!icon.title) {
+        try {
+          const userInfo = await userData(post.author._id);
+          icon.title = `User: ${userInfo._id}\nBio: ${userInfo.quote}\nDate Joined: ${new Date(userInfo.created * 1000)}`;
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+          icon.title = "User info not available";
+        }
+      }
+    });
+    icon.addEventListener('mouseout', () => icon.style.cursor = 'pointer');
+
+    // Post content
+    const decodedContent = decodeHTML(post.p);
+    contentCell.innerHTML = `${convertMarkdownToHTML(decodedContent)}<hr>${new Date(post.t.e * 1000)}`;
   });
 }
+
+// Update table when DOM is fully loaded
+document.addEventListener('DOMContentLoaded', updateTable);
