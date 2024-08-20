@@ -68,10 +68,10 @@ function updateTable() {
     contentCell.style.whiteSpace = 'pre-wrap';
 
     // User avatar and info
-    const avatarUrl = post.author.avatar ? `https://uploads.meower.org/icons/${post.author.avatar}` : 'defaultpfp.png';
+    const avatarUrl = post.author.avatar ? `https://github.com/tehbarney86/meower95/blob/main/assets/pfps/${post.author._id}.png?raw=true` : 'https://github.com/tehbarney86/meower95/blob/main/assets/pfps/${post.author.pfp_data}.png?raw=true';
     const userColor = post.author.avatar_color || '#000';
     userImageCell.innerHTML = `
-      <img src="${avatarUrl}" width="50" height="50" alt="Icon">
+      <img src="${avatarUrl}" width="64" height="64" alt="Icon">
       <hr>
       <b><font color="${userColor}">${post.author._id}</font></b>
     `;
