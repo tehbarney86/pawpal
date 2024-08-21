@@ -91,13 +91,13 @@ function updateTable() {
     icon.addEventListener('mouseout', () => icon.style.cursor = 'pointer');
 
     let postReplies = post.reply_to.map(reply => {
-      const replyUserColor = reply.author.avatar_color || '#000';
-      return `<blockquote id="reply"><table border="1" cellpadding="0" cellspacing="0" width="100%"><tr><td><b><font color="${replyUserColor}">${reply.author._id}</font> said:</b></td></tr><tr><td><div style="word-wrap: break-word; word-break: break-all; max-width: 100%; white-space: pre-wrap;">${reply.p}
+      const replyUserColor = reply?.author.avatar_color || '#000';
+      return `<blockquote id="reply"><table border="1" cellpadding="0" cellspacing="0" width="100%"><tr><td><b><font color="${replyUserColor}">${reply?.author._id}</font> said:</b></td></tr><tr><td><div style="word-wrap: break-word; word-break: break-all; max-width: 100%; white-space: pre-wrap;">${reply?.p}
       </div></td></tr></table></blockquote>`;
     }).join('');
 
     let attachments = post.attachments.map(attachment => {
-      return `\n <img src='https://uploads.meower.org/attachments/${attachment.id}' width='${attachment.width}' height='${attachment.height}' alt='Attachment' style='max-width: 256px; max-height: 256px; object-fit: contain;'>`;
+      return `\n <img src='https://uploads.meower.org/attachments/${attachment.id}' width='${attachment.width}' height='${attachment.height}' alt='Attachment' style='max-width: 256px; max-height: 256px; object-fit: contain; align-self: center;'>`;
     }).join(`\n`)
     
     postReplies += '<br>';
