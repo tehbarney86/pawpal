@@ -4,7 +4,6 @@ import { convertMarkdownToHTML } from './markdown.js';
 const posts = [];
 const ws = new WebSocket("wss://server.meower.org/?v=1");
 
-// Fetch initial posts
 fetch('https://api.meower.org/home')
   .then(response => response.json())
   .then(data => {
@@ -13,14 +12,12 @@ fetch('https://api.meower.org/home')
   })
   .catch(error => console.error("Error fetching posts:", error));
 
-// Decode HTML entities
 function decodeHTML(html) {
   const txt = document.createElement("textarea");
   txt.innerHTML = html;
   return txt.value;
 }
 
-// WebSocket message handling
 ws.onmessage = event => {
   const data = JSON.parse(event.data);
   console.log("Received message:", data);
@@ -43,7 +40,6 @@ ws.onmessage = event => {
   updateTable();
 };
 
-// Update the table with posts
 function updateTable() {
   const table = document.getElementById("post-table");
   if (!table) {
@@ -52,31 +48,32 @@ function updateTable() {
   }
 
   table.innerHTML = '';
-  
+
   posts.forEach(post => {
     const row = table.insertRow();
     const userImageCell = row.insertCell();
     const contentCell = row.insertCell();
 
-    // Style cells
-    userImageCell.style.width = '50px';
-    contentCell.style.width = 'calc(100% - 50px)';
-    userImageCell.style.padding = '5px';
-    contentCell.style.padding = '5px';
-    contentCell.style.wordWrap = 'break-word';
-    contentCell.style.wordBreak = 'break-all';
-    contentCell.style.whiteSpace = 'pre-wrap';
+    Object.assign(userImageCell.style, {
+      width: '50px',
+      padding: '5px',
+    });
 
-    // User avatar and info
-    const avatarUrl = post.author.avatar ? `https://uploads.meower.org/icons/${post.author.avatar}` : 'defaultpfp.png';
+    Object.assign(contentCell.style, {
+      width: 'calc(100% - 50px)',
+      wordWrap: 'break-word',
+      wordBreak: 'break-all',
+      whiteSpace: 'pre-wrap'
+    });
+
+    const avatarUrl = post.author.avatar ? `https://uploads.meower.org/icons/${post.author.avatar}` : '/public/img/defaultpfp.png';
     const userColor = post.author.avatar_color || '#000';
     userImageCell.innerHTML = `
-      <img src="${avatarUrl}" width="50" height="50" alt="Icon">
+      <img src="${avatarUrl}" style="width: 50px; height: 50px; object-fit: cover;" alt="Icon">
       <hr>
-      <b><font color="${userColor}">${post.author._id}</font></b>
+      <b><span style="color: ${userColor};">${post.author._id}</span></b>
     `;
 
-    // Fetch user info on hover
     const icon = userImageCell.querySelector('img');
     icon.addEventListener('mouseover', async () => {
       icon.style.cursor = 'help';
@@ -92,11 +89,24 @@ function updateTable() {
     });
     icon.addEventListener('mouseout', () => icon.style.cursor = 'pointer');
 
-    // Post content
-    const decodedContent = decodeHTML(post.p);
-    contentCell.innerHTML = `${convertMarkdownToHTML(decodedContent)}<hr>${new Date(post.t.e * 1000)}`;
+    let postReplies = post.reply_to.map(reply => {
+      const replyUserColor = reply.author.avatar_color || '#000';
+      return `<blockquote id="reply"><table border="1" cellpadding="0" cellspacing="0" width="100%"><tr><td><b><font color="${replyUserColor}">${reply.author._id}</font> said:</b></td></tr><tr><td><div style="word-wrap: break-word; word-break: break-all; max-width: 100%; white-space: pre-wrap;">${reply.p}
+      </div></td></tr></table></blockquote>`;
+    }).join('');
+    
+    postReplies += '<br>';
+    postReplies = convertMarkdownToHTML(decodeHTML(postReplies));
+
+    let decodedContent = DOMPurify.sanitize(post.p, {
+      ALLOWED_TAGS: [],
+      ALLOWED_ATTR: []
+    });
+    decodedContent = decodeHTML(decodedContent);
+
+    contentCell.innerHTML = `${postReplies} ${convertMarkdownToHTML(decodedContent)}<hr>${new Date(post.t.e * 1000)}
+    <div style="text-align: right;"><button>Reply</button></div>`;
   });
 }
 
-// Update table when DOM is fully loaded
 document.addEventListener('DOMContentLoaded', updateTable);

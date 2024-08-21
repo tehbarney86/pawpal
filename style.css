@@ -1,0 +1,49 @@
+* {
+    image-rendering: pixelated;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+table {
+    border-collapse: separate;
+    background-color: transparent;
+}
+
+#post-table {
+    background-color: rgb(221, 221, 221);
+}
+
+rainbow {
+    color: rgba(0, 0, 0, 0.459);
+    background: linear-gradient(to right,
+            red, orange, yellow, green, blue, indigo, violet, indigo, blue, green, yellow, orange, red);
+    background-size: 500%;
+    animation: rainbow-flow infinite linear 36s;
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+img.emoji {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0 2px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    max-width: 16px;
+    max-height: 16px;
+}
+
+#default-emoji {
+    image-rendering: crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+}
+
+@keyframes rainbow-flow {
+    0% {
+        background-position: 50% 0%;
+    }
+
+    100% {
+        background-position: -200%;
+    }
+}

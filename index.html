@@ -3,78 +3,127 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 
 <head>
-  <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Home - PawPal!</title>
+  <title>Login - PawPal</title>
   <link rel="stylesheet" href="https://unpkg.com/98.css">
-  <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
   <style>
-    * {
-      image-rendering: pixelated;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
+    body {
+      background-color: #C0C0C0;
+      font-family: Arial, sans-serif;
+      color: #000000;
     }
 
-    table {
-      border-collapse: separate;
-      background-color: transparent;
+    .login-container {
+      width: 300px;
+      padding: 20px;
+      margin: 0 auto;
     }
 
-    #post-table {
-      background-color: rgb(221, 221, 221);
+    h4 {
+      text-align: center;
+      font-size: 16px;
+      color: #000000;
     }
 
-    rainbow {
-      color: rgba(0, 0, 0, 0.459);
-      background: linear-gradient(to right,
-          red, orange, yellow, green, blue, indigo, violet, indigo, blue, green, yellow, orange, red);
-      background-size: 500%;
-      animation: rainbow-flow infinite linear 36s;
-      -webkit-background-clip: text;
-      background-clip: text;
+    input[type="text"],
+    input[type="password"] {
+      margin-bottom: 10px;
+      padding: 5px;
+      width: 100%;
+      border: 1px solid #000000;
     }
 
-    img.emoji {
-      display: inline-block;
-      vertical-align: middle;
-      margin: 0 2px;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      width: 16px;
-      height: 16px;
-    }
-
-    @keyframes rainbow-flow {
-      0% {
-        background-position: 50% 0%;
-      }
-
-      100% {
-        background-position: -200%;
-      }
+    #invalid {
+      color: red;
+      font-size: 12px;
+      margin-bottom: 10px;
     }
   </style>
 </head>
 
-<body bgcolor="#BFBDC0">
-  <table align="center" border="0" cellpadding="0" cellspacing="0" width="640">
-    <tbody>
-      <tr>
-        <td>
-          <h4>Latest Home Posts - PawPal</h4>
-          <hr>
-          <table id="post-table" bgcolor="#DDDDDD" border="1" cellpadding="2" cellspacing="2" width="100%">
-          </table>
-          <hr>
-          <footer style="text-align: center; margin-top: 20px;">
-            &copy; 1998 PawPal!
-          </footer>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+<body>
+  <div id="login-container" class="login-container">
+    <div class="window" style="width: 300px">
+      <div class="title-bar">
+        <div class="title-bar-text">Login - PawPal!</div>
+        <div class="title-bar-controls">
+          <button aria-label="Minimize"></button>
+          <button aria-label="Maximize"></button>
+          <button aria-label="Close"></button>
+        </div>
+      </div>
+      <div class="window-body">
+        <h4>Login</h4>
+        <form id="login-form" action="home.html" method="post">
+          <label for="username">Username:</label>
+          <input type="text" id="username" name="username" required="required" />
 
-  <script language="Javascript" type="module" src="displayposts.js"></script>
+          <label for="password">Password:</label>
+          <input type="password" id="password" name="password" required="required" />
+          <div id="invalid"></div>
+
+          <input type="checkbox" id="remember-me" />
+          <label for="remember-me">Remember me</label>
+          <br>
+          <br>
+
+          <center>
+            <input type="submit" value="Sign In" />
+            <!--- <input type="submit" value="Sign Up" /> ---->
+            <br>
+            <p>Version: b58862f</p>
+          </center>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script>
+
+    document.getElementById('login-form').onsubmit = function (event) {
+      event.preventDefault();
+
+      var username = document.getElementById('username').value;
+      var password = document.getElementById('password').value;
+      const rememberMe
+        = document.getElementById('remember-me').checked; // Get remember me value
+
+      fetch('https://api.meower.org/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username, password })
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (!data.error) {
+            const ws = new WebSocket(`wss://server.meower.org/?v=1&token=${data.token}`);
+
+            ws.onmessage = (message) => {
+              const data = JSON.parse(message.data);
+              if (data.cmd === 'auth') {
+                const dataToStore = JSON.stringify(data.val);
+
+                if (rememberMe) {
+                  localStorage.setItem('userData', dataToStore);
+                } else {
+                  sessionStorage.setItem('userData', dataToStore);
+                }
+
+              }
+              ws.close();
+            };
+
+            document.getElementById('invalid').innerHTML = '';
+            window.location.replace('home.html');
+          } else {
+            document.getElementById('invalid').innerHTML = 'Invalid credentials. Please try again.';
+          }
+        });
+    };
+
+  </script>
 </body>
 
 </html>

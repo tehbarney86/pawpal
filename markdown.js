@@ -1,14 +1,28 @@
+const emojiImages = {
+  '🍈': '/public/img/emojis/emoji_melon.png',
+  '🙂': '/public/img/emojis/emoji_smile.png',
+  '😎': '/public/img/emojis/emoji_cool.png',
+  '🤓': '/public/img/emojis/emoji_nerd.png',
+  '😡': '/public/img/emojis/emoji_angry.png',
+};
+
 export function convertMarkdownToHTML(text) {
   // Markdown to HTML
   text = text
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // bold
-    .replace(/__(.*?)__/g, '<u>$1</u>') // underline
-    .replace(/~~(.*?)~~/g, '<strike>$1</strike>') // strikethrough
-    .replace(/\*(.*?)\*/g, '<em>$1</em>') // italic
-    .replace(/\^\^(.*?)\^\^/g, '<marquee>$1</marquee>') // marquee
-    .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>') // links
-    .replace(/```(.*?)```/gs, '<pre><code>$1</code></pre>') // code blocks
-    .replace(/🌈(.*?)🌈/g, '<rainbow>$1</rainbow>'); // rainbow text
+    .replace(/(?<!\\)\*\*(.*?)\*\*/g, '<strong>$1</strong>') // bold
+    .replace(/(?<!\\)__(.*?)__/g, '<u>$1</u>') // underline
+    .replace(/(?<!\\)~~(.*?)~~/g, '<strike>$1</strike>') // strikethrough
+    .replace(/(?<!\\)\*(.*?)\*/g, '<em>$1</em>') // italic
+    .replace(/(?<!\\)\^\^(.*?)\^\^/g, '<marquee>$1</marquee>') // marquee
+    .replace(/(?<!\\)\[(.*?)\]\((.*?)\)/g, (match, text, url) => `<a href="${url}">${text}</a>`) // links
+    .replace(/^(?<!\\)> (.*)/gm, '<blockquote>$1</blockquote>')
+    .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>') // code blocks
+    .replace(/🌈(.*?)🌈/g, '<rainbow>$1</rainbow>') // rainbow text
+    .replace(/(?<!\\)\*\*(.*?)\*\*/g, '<span class="trashy-filter">$1</span>') // trashy filter
+  text = text
+    .replace(/\\([*_~\[\]()^`])/g, '$1')
+    .replace(/\\([^\s\S])/g, '$1');
+
 
   // BBCode to HTML
   text = text
@@ -37,14 +51,19 @@ export function convertMarkdownToHTML(text) {
   text = text
     .replace(/([a-z]+:\/\/[^\s]+)/g, match => `<a href="${match}">${match}</a>`) // URLs
     .replace(/<(a)?:(\w+):(\d+)>/gi, (match, a, name, id) => {
-      const ext = a ? 'gif' : 'webp'; 
+      const ext = a ? 'gif' : 'webp';
       return `<img class="emoji" src="https://cdn.discordapp.com/emojis/${id}.${ext}?size=128&quality=lossless" alt="${name}">`;
     }); // Discord emojis
 
   // Meower Emoji 
-    text = text.replace(/<:(\w+)>/g, (match, id) => {
-      return `<img class="emoji" src="https://uploads.meower.org/emojis/${id}" alt="Meower Emoji">`;
-    });
+  text = text.replace(/<:(\w+)>/g, (match, id) => {
+    return `<img class="emoji" src="https://uploads.meower.org/emojis/${id}" alt="Meower Emoji">`;
+  });
+
+  // Replace custom emojis
+  text = text.replace(/([\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2300}-\u{23FF}\u{2B50}\u{1F004}-\u{1F0CF}])/gu, match => {
+    return emojiImages[match] ? `<img src="${emojiImages[match]}" alt="${match}" class="emoji" id="default-emoji">` : match;
+  });  
 
   // Tables
   text = text.replace(/(?:\|(.+?)\|)\n(?:\|[-:]+[-|:]+\|)\n((?:\|.*\|\n?)*)/g, (headers, rows) => {
