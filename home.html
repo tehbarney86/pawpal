@@ -24,26 +24,37 @@
       <button id="logout-button" style="margin-left: auto;">Logout</button>
       <label id="channel" style="margin-left: auto;">Channel: </label>
       <select id="channel-select" style="margin-left: auto;">
+        <optgroup label="General">
         <option value="home">Home</option>
         <option value="livechat">Livechat</option>
+        </optgroup>
+        <optgroup label="Groupchats">
+        </optgroup>
+        <optgroup label="DMS">
+        </optgroup>
       </select>
-      <script type="module" src="userdata.js">      
+
+      <script type="module">
+        import { getUserData } from './userdata.js';
+      
         const userData = getUserData();
         console.log(userData);
       
         if (userData) {
-          // Populate the select element with chat options
           for (const chat of userData.chats) {
-            if (chat.nickname) {
             const option = document.createElement('option');
-            option.value = chat.nickname;
-            option.text = chat.nickname;
-            document.getElementById('channel-select').appendChild(option);
+            if (chat.type === 0) {
+              option.value = chat.nickname;
+              option.text = chat.nickname
+              document.querySelector('optgroup[label="Groupchats"]').appendChild(option);
+            } else if (chat.type === 1 && chat.members.includes(userData.username)) {
+              option.value = chat._id;
+              option.text = chat.members.filter(member => member !== userData.username).join(', ');
+              document.querySelector('optgroup[label="DMS"]').appendChild(option);
             }
-            
-          }
-        }
-      </script>         
+        }}
+
+      </script>   
 
       <label id="theme" style="margin-left: auto;">Theme: </label>
       <select id="theme-select" style="margin-left: auto;">

@@ -1,8 +1,9 @@
-import { userData } from './userdata.js';
+import { getUserData, userData } from './userdata.js';
 import { convertMarkdownToHTML } from './markdown.js';
 
 const posts = [];
-const ws = new WebSocket("wss://server.meower.org/?v=1");
+const data = getUserData();
+const ws = new WebSocket(`wss://server.meower.org/?v=1&token=${data.token}`);
 
 fetch('https://api.meower.org/home')
   .then(response => response.json())
@@ -94,6 +95,11 @@ function updateTable() {
       return `<blockquote id="reply"><table border="1" cellpadding="0" cellspacing="0" width="100%"><tr><td><b><font color="${replyUserColor}">${reply.author._id}</font> said:</b></td></tr><tr><td><div style="word-wrap: break-word; word-break: break-all; max-width: 100%; white-space: pre-wrap;">${reply.p}
       </div></td></tr></table></blockquote>`;
     }).join('');
+
+    let attachments = post.attachments.map(attachment => {
+      return `\n <img src='https://uploads.meower.org/attachments/${attachment.id}' width='${attachment.width}' height='${attachment.height}' alt='Attachment' style='max-width: 256px; max-height: 256px;'>`;
+    }).join(`\n`)
+    console.log(attachments)
     
     postReplies += '<br>';
     postReplies = convertMarkdownToHTML(decodeHTML(postReplies));
@@ -104,7 +110,7 @@ function updateTable() {
     });
     decodedContent = decodeHTML(decodedContent);
 
-    contentCell.innerHTML = `${postReplies} ${convertMarkdownToHTML(decodedContent)}<hr>${new Date(post.t.e * 1000)}
+    contentCell.innerHTML = `${postReplies} ${convertMarkdownToHTML(decodedContent)} ${attachments}<hr>${new Date(post.t.e * 1000)}
     <div style="text-align: right;"><button>Reply</button></div>`;
   });
 }
