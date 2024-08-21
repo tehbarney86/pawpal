@@ -9,10 +9,6 @@ table {
     background-color: transparent;
 }
 
-#post-table {
-    background-color: rgb(221, 221, 221);
-}
-
 rainbow {
     color: rgba(0, 0, 0, 0.459);
     background: linear-gradient(to right,

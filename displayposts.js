@@ -97,9 +97,8 @@ function updateTable() {
     }).join('');
 
     let attachments = post.attachments.map(attachment => {
-      return `\n <img src='https://uploads.meower.org/attachments/${attachment.id}' width='${attachment.width}' height='${attachment.height}' alt='Attachment' style='max-width: 256px; max-height: 256px;'>`;
+      return `\n <img src='https://uploads.meower.org/attachments/${attachment.id}' width='${attachment.width}' height='${attachment.height}' alt='Attachment' style='max-width: 256px; max-height: 256px; object-fit: contain;'>`;
     }).join(`\n`)
-    console.log(attachments)
     
     postReplies += '<br>';
     postReplies = convertMarkdownToHTML(decodeHTML(postReplies));

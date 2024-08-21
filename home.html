@@ -11,6 +11,49 @@
   <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
 </head>
 
+<style>
+   :root {
+     --background-color: #BFBDC0;
+     --textbox-color: #ffffff;
+     --post-color: #dddddd;
+     --text-color: #000;
+     --link-color: #007bff; 
+     --table-bg: #DDDDDD;
+   }
+
+   .dark-theme {
+     --background-color: #202020;
+     --textbox-color: #333;
+     --post-color: #555;
+     --text-color: #ffffff;
+     --link-color: #00c0ff;
+     --table-bg: #555;
+   }
+   
+   body {
+     background-color: var(--background-color);
+     color: var(--text-color); 
+   }
+
+   #post-table {
+    background-color: var(--post-color);
+   }
+
+   textarea {
+     background-color: var(--textbox-color);
+     color: var(--text-color);
+   }
+
+   a {
+     color: var(--link-color);
+   }
+
+   table {
+     background-color: var(--table-bg);
+   }
+</style>
+
+
 <BODY bgcolor="#BFBDC0">
   <div style="display: flex; flex-direction: column; margin: 0px 36px; padding-bottom: 5px;">
     <div style="display: flex; align-items: center;">
@@ -101,6 +144,18 @@
 
   <script language="Javascript" type="module" src="displayposts.js"></script>
   <script language="Javascript" type="module" src="onlineusers.js"></script>
-</body>
+  <script>
+    const themeSelect = document.getElementById('theme-select');
+    const body = document.body; 
+
+    themeSelect.addEventListener('change', () => {
+      if (themeSelect.value === 'dark') {
+        body.classList.add('dark-theme');
+      } else {
+        body.classList.remove('dark-theme');
+      }
+    });
+  </script>
+  </body>
 
 </html>
