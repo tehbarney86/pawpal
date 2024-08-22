@@ -19,7 +19,6 @@ fetch('https://api.meower.org/ulist')
         cell.colSpan = 2;
         cell.style.textAlign = 'center';
         cell.style.fontWeight = 'bold';
-        cell.style.backgroundColor = '#DDDDDD';
         cell.style.color = '#000000';
         cell.style.padding = '5px';
 
@@ -43,5 +42,4 @@ fetch('https://api.meower.org/ulist')
 }
 
 fetchUserList();
-
 setInterval(fetchUserList, 5000);

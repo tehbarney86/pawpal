@@ -12,47 +12,52 @@
 </head>
 
 <style>
-   :root {
-     --background-color: #BFBDC0;
-     --textbox-color: #ffffff;
-     --post-color: #dddddd;
-     --text-color: #000;
-     --link-color: #007bff; 
-     --table-bg: #DDDDDD;
-   }
+  :root {
+    --background-color: #BFBDC0;
+    --textbox-color: #ffffff;
+    --post-color: #dddddd;
+    --text-color: #000;
+    --link-color: #007bff;
+    --table-bg: #DDDDDD;
+    --font-family: "Pixelated MS Sans Serif", Arial
+  }
 
-   .dark-theme {
-     --background-color: #202020;
-     --textbox-color: #333;
-     --post-color: #555;
-     --text-color: #ffffff;
-     --link-color: #00c0ff;
-     --table-bg: #555;
-   }
-   
-   body {
-     background-color: var(--background-color);
-     color: var(--text-color); 
-   }
+  .dark-theme {
+    --background-color: #202020;
+    --textbox-color: #333;
+    --post-color: #555;
+    --text-color: #ffffff;
+    --link-color: #00c0ff;
+    --table-bg: #555;
+  }
 
-   #post-table {
+  body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-family: var(--font-family);
+  }
+
+  #online-userlist {
     background-color: var(--post-color);
-   }
+  }
 
-   textarea {
-     background-color: var(--textbox-color);
-     color: var(--text-color);
-   }
+  #post-table {
+    background-color: var(--post-color);
+  }
 
-   a {
-     color: var(--link-color);
-   }
+  textarea {
+    background-color: var(--textbox-color);
+    color: var(--text-color);
+  }
 
-   table {
-     background-color: var(--table-bg);
-   }
+  a {
+    color: var(--link-color);
+  }
+
+  table {
+    background-color: var(--table-bg);
+  }
 </style>
-
 
 <BODY bgcolor="#BFBDC0">
   <div style="display: flex; flex-direction: column; margin: 0px 36px; padding-bottom: 5px;">
@@ -62,14 +67,14 @@
         &copy; 1998 PawPal!
       </p>
     </div>
-    
+
     <div>
       <button id="logout-button" style="margin-left: auto;">Logout</button>
       <label id="channel" style="margin-left: auto;">Channel: </label>
       <select id="channel-select" style="margin-left: auto;">
         <optgroup label="General">
-        <option value="home">Home</option>
-        <option value="livechat">Livechat</option>
+          <option value="home">Home</option>
+          <option value="livechat">Livechat</option>
         </optgroup>
         <optgroup label="Groupchats">
         </optgroup>
@@ -79,15 +84,15 @@
 
       <script type="module">
         import { getUserData } from './userdata.js';
-      
+
         const userData = getUserData();
         console.log(userData);
-      
+
         if (userData) {
           for (const chat of userData.chats) {
             const option = document.createElement('option');
             if (chat.type === 0) {
-              option.value = chat.nickname;
+              option.value = chat._id;
               option.text = chat.nickname
               document.querySelector('optgroup[label="Groupchats"]').appendChild(option);
             } else if (chat.type === 1 && chat.members.includes(userData.username)) {
@@ -95,9 +100,9 @@
               option.text = chat.members.filter(member => member !== userData.username).join(', ');
               document.querySelector('optgroup[label="DMS"]').appendChild(option);
             }
-        }}
-
-      </script>   
+          }
+        }
+      </script>
 
       <label id="theme" style="margin-left: auto;">Theme: </label>
       <select id="theme-select" style="margin-left: auto;">
@@ -127,26 +132,64 @@
       <div style="margin-top: 10px;">
         <textarea id="post-textbox" style="width: 100%; height: 48px; resize: none;"></textarea>
         <div style="display: flex; justify-content: flex-end;">
-          <button id="post-button" style="margin-left: 10px;">Post</button> 
+          <button id="post-button" style="margin-left: 10px;">Post</button>
         </div>
-        
-        <script type="module" src="sendpost.js"></script> 
-        
+
+        <script type="module" src="sendpost.js"></script>
         <script type="module">
-          import { sendPost } from './sendpost.js'; 
-        
-          document.getElementById('post-button').addEventListener('click', sendPost);
+          import { sendPost } from './sendpost.js';
+
+          document.getElementById('post-button').addEventListener('click', () => {
+            const channelSelect = document.getElementById('channel-select');
+            const currentChat = channelSelect.value;
+
+            if (currentChat === 'home') {
+              sendPost("home", '');
+            } else 
+            if (currentChat === 'livechat') {
+              sendPost("livechat", 'livechat');
+            } else {
+              sendPost("groupchats", currentChat);
+            }
+          });
         </script>
-        
+
       </div>
     </div>
   </div>
 
-  <script language="Javascript" type="module" src="displayposts.js"></script>
+  <script language="Javascript" type="module">
+    import { displayPosts } from './displayposts.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const channelSelect = document.getElementById('channel-select');
+
+      channelSelect.addEventListener('change', () => {
+        const currentChat = channelSelect.value;
+        const chatType = channelSelect.options[channelSelect.selectedIndex].text;
+
+        if (currentChat === 'home' || currentChat === 'livechat') {
+          displayPosts(currentChat, 'livechat');
+        } else {
+          displayPosts("groupchats", currentChat);
+        }
+      });
+
+      const currentChat = channelSelect.value;
+      const chatType = channelSelect.options[channelSelect.selectedIndex].text;
+
+      if (currentChat === 'home' || currentChat === 'livechat') {
+          displayPosts(currentChat, 'livechat');
+        } else {
+          displayPosts("groupchats", currentChat);
+        }
+    });
+  </script>
+
   <script language="Javascript" type="module" src="onlineusers.js"></script>
   <script>
     const themeSelect = document.getElementById('theme-select');
-    const body = document.body; 
+    const body = document.body;
 
     themeSelect.addEventListener('change', () => {
       if (themeSelect.value === 'dark') {
@@ -156,6 +199,5 @@
       }
     });
   </script>
-  </body>
-
+</body>
 </html>
