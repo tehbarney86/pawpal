@@ -71,15 +71,21 @@ export function displayPosts(context, chatID) {
           if (updateIndex !== -1) posts[updateIndex] = data.val;
           break;
         case 'delete_post':
-          var deleteIndex = findIndex(posts, function(post) { return post._id === data.val._id; });
-          if (deleteIndex !== -1) posts.splice(deleteIndex, 1);
+          console.log('Attempting to delete post with ID:', data.val.post_id);
+          var deleteIndex = findIndex(posts, function(post) { return post._id === data.val.post_id; });
+          if (deleteIndex !== -1) {
+            posts.splice(deleteIndex, 1);
+            console.log('Post deleted successfully.');
+          } else {
+            console.warn('Post to delete not found.');
+          }
           break;
         default:
           console.warn('Unknown command:', data.cmd);
       }
       updateTable();
     }
-  };
+};
 
   function findIndex(array, predicate) {
     for (var i = 0; i < array.length; i++) {
@@ -110,7 +116,7 @@ export function displayPosts(context, chatID) {
       contentCell.style.wordBreak = 'break-all';
       contentCell.style.whiteSpace = 'pre-wrap';
 
-      var avatarUrl = post.author.avatar ? 'https://uploads.meower.org/icons/' + post.author.avatar : 'pawpal/public/img/defaultpfp.png';
+      var avatarUrl = post.author.avatar ? 'https://uploads.meower.org/icons/' + post.author.avatar : '/public/img/defaultpfp.png';
       var userColor = post.author.avatar_color || '#000';
       userImageCell.innerHTML = '<img src="' + avatarUrl + '" style="width: 50px; height: 50px; object-fit: cover;" alt="Icon"><hr><b><span style="color: ' + userColor + ';">' + post.author._id + '</span></b>';
 
@@ -138,7 +144,7 @@ export function displayPosts(context, chatID) {
 
       var postReplies = post.reply_to.map(function(reply) {
         var replyUserColor = reply && reply.author.avatar_color || '#000';
-        return '<blockquote id="reply"><table border="1" cellpadding="0" cellspacing="0" width="100%"><tr><td><b><font color="' + replyUserColor + '">' + (reply && reply.author._id || '') + ' said:</font></b></td></tr><tr><td><div style="word-wrap: break-word; word-break: break-all; max-width: 100%; white-space: pre-wrap;">' + (reply && reply.p || '') + (reply_to_attachments ? '\n' + reply_to_attachments : '') + '</div></td></tr></table></blockquote>';
+        return '<blockquote id="reply"><table border="1" cellpadding="0" cellspacing="0" width="100%"><tr><td><b><font color="' + replyUserColor + '">' + (reply && reply.author._id || '') + ' said:</font></b></td></tr><tr><td><div style="word-wrap: break-word; word-break: break-all; max-width: 100%; white-space: pre-wrap;">' + (reply && convertMarkdownToHTML(decodeHTML(reply.p)) || '') + (reply_to_attachments ? reply_to_attachments + '\n' : '') + '</div></td></tr></table></blockquote>';
       }).join('');
 
 
@@ -147,12 +153,12 @@ export function displayPosts(context, chatID) {
       }).join('\n');
 
       postReplies += '<br>';
-      postReplies = convertMarkdownToHTML(decodeHTML(postReplies));
+      postReplies = DOMPurify.sanitize(postReplies);
 
       var decodedContent = DOMPurify.sanitize(post.p, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
       decodedContent = decodeHTML(decodedContent);
 
-      contentCell.innerHTML = postReplies + convertMarkdownToHTML(decodedContent) + ' ' + attachments + '<hr>' + new Date(post.t.e * 1000) + '<div style="text-align: right;"><button>Reply</button></div>';
+      contentCell.innerHTML = postReplies + convertMarkdownToHTML(decodeHTML(decodedContent)) + ' ' + attachments + '<hr>' + new Date(post.t.e * 1000) + '<div style="text-align: right;"><button>Reply</button></div>';
     });
   }
 }

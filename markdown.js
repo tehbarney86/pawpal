@@ -6,6 +6,64 @@ const emojiImages = {
   '😡': '/public/img/emojis/emoji_angry.png',
 };
 
+function parseTable(text) {
+  // Regex to match Markdown tables with headers, alignment, and rows
+  const markdownTableRegex = /(?<=\n|^)\|(.+?)\|\n\|([-:| ]+)\|\n((?:\|(.+?)\|\n?)*)\n?(?=\n|$)/gs;
+
+  // Convert Markdown table to HTML table
+  text = text.replace(markdownTableRegex, (match, headers, alignment, rows) => {
+    let table = '<table border="1" cellpadding="2" cellspacing="2">';
+
+    // Process headers
+    if (headers) {
+      const headerRows = headers.split('\n').filter(row => row.trim());
+      table += '<thead>';
+      headerRows.forEach(headerRow => {
+        const headerCells = headerRow.split('|').filter(cell => cell.trim()).map(cell => `<th>${cell.trim()}</th>`).join('');
+        table += `<tr>${headerCells}</tr>`;
+      });
+      table += '</thead>';
+    }
+
+    // Process rows
+    if (rows) {
+      table += '<tbody>';
+      const rowLines = rows.split('\n').filter(row => row.trim());
+      rowLines.forEach(rowLine => {
+        const rowCells = rowLine.split('|').filter(cell => cell.trim()).map(cell => `<td>${cell.trim()}</td>`).join('');
+        table += `<tr>${rowCells}</tr>`;
+      });
+      table += '</tbody>';
+    }
+
+    table += '</table>';
+    return table;
+  });
+
+  // Regex to match ASCII tables
+  const asciiTableRegex = /\+.*?\+\n(?:\|.*?\|\n)+\+.*?\+/gs;
+
+  text = text.replace(asciiTableRegex, (match) => {
+    let lines = match.split('\n').filter(line => line.trim());
+    let table = '<table border="1" cellpadding="2" cellspacing="2">';
+
+    // Headers
+    let headers = lines[1].slice(1, -1).split('|').map(cell => `<th>${cell.trim()}</th>`).join('');
+    table += `<thead><tr>${headers}</tr></thead>`;
+
+    // Rows
+    lines.slice(2, -1).forEach(line => {
+      let cells = line.slice(1, -1).split('|').map(cell => `<td>${cell.trim()}</td>`).join('');
+      table += `<tr>${cells}</tr>`;
+    });
+
+    table += '</tbody></table>';
+    return table;
+  });
+
+  return text;
+}
+
 export function convertMarkdownToHTML(text) {
   // Markdown to HTML
   text = text
@@ -66,20 +124,7 @@ export function convertMarkdownToHTML(text) {
   });  
 
   // Tables
-  text = text.replace(/(?:\|(.+?)\|)\n(?:\|[-:]+[-|:]+\|)\n((?:\|.*\|\n?)*)/g, (headers, rows) => {
-    let table = '<table border="1" cellpadding="2" cellspacing="2">';
-
-    const headerCells = headers.split('|').filter(cell => cell.trim()).map(cell => `<td>${cell.trim()}</td>`).join('');
-    table += '<tr>' + headerCells + '</tr>';
-
-    rows.split('\n').filter(row => row.trim()).forEach(line => {
-      const cells = line.split('|').filter(cell => cell.trim()).map(cell => `<td>${cell.trim()}</td>`).join('');
-      table += '<tr>' + cells + '</tr>';
-    });
-
-    table += '</table>';
-    return table;
-  });
+  text = parseTable(text);
 
   return text;
 }
