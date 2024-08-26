@@ -1,15 +1,14 @@
-<!DOCTYPE html
-  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PawPal!</title>
+<HTML>
+
+<HEAD>
+
+  <TITLE>PawPal!</TITLE>
   <link rel="stylesheet" href="https://unpkg.com/98.css">
   <link rel="stylesheet" href="./style.css">
   <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
-</head>
+</HEAD>
 
 <style>
   :root {
@@ -60,83 +59,89 @@
 </style>
 
 <BODY bgcolor="#BFBDC0">
-  <div style="display: flex; flex-direction: column; margin: 0px 36px; padding-bottom: 5px;">
-    <div style="display: flex; align-items: center;">
-      <h4 style="margin-top: 0px;">PawPal</h4>
-      <p style="text-align: center; margin-left: auto;">
+  <DIV STYLE="MARGIN: 0px 36px; PADDING-BOTTOM: 5px;">
+    <DIV STYLE="DISPLAY: flex; ALIGN-ITEMS: center;">
+      <H4 STYLE="MARGIN-TOP: 0px;">PawPal</H4>
+      <P STYLE="TEXT-ALIGN: center; MARGIN-LEFT: auto;">
         &copy; 1998 PawPal!
-      </p>
-    </div>
+      </P>
+    </DIV>
 
-    <div>
-      <button id="logout-button" style="margin-left: auto;">Logout</button>
-      <label id="channel" style="margin-left: auto;">Channel: </label>
-      <select id="channel-select" style="margin-left: auto;">
-        <optgroup label="General">
-          <option value="home">Home</option>
-          <option value="livechat">Livechat</option>
-        </optgroup>
-        <optgroup label="Groupchats">
-        </optgroup>
-        <optgroup label="DMS">
-        </optgroup>
-      </select>
+    <DIV>
+      <BUTTON id="logout-button" CLASS="theme-button">Logout</BUTTON>
+      <LABEL id="channel" CLASS="theme-button">Channel: </LABEL>
+      <SELECT id="channel-select" CLASS="theme-button">
 
-      <script type="module">
+        <OPTGROUP LABEL="General">
+          <option VALUE="home">Home</option>
+          <option VALUE="livechat">Livechat</option>
+        </OPTGROUP>
+
+        <OPTGROUP LABEL="Groupchats"></OPTGROUP>
+        <OPTGROUP LABEL="DMS"></OPTGROUP>
+
+      </SELECT>
+
+      <SCRIPT type="module">
         import { getUserData } from './userdata.js';
 
         const userData = getUserData();
-        console.log(userData);
 
         if (userData) {
-          for (const chat of userData.chats) {
+          const groupChats = document.querySelector('optgroup[label="Groupchats"]');
+          const dms = document.querySelector('optgroup[label="DMS"]');
+
+          userData.chats.sort((a, b) => {
+            const membersA = a.members.filter(member => member !== userData.username).join(', ');
+            const membersB = b.members.filter(member => member !== userData.username).join(', ');
+            return membersA.localeCompare(membersB);
+          }).forEach(chat => {
             const option = document.createElement('option');
+            option.value = chat._id;
+
             if (chat.type === 0) {
-              option.value = chat._id;
-              option.text = chat.nickname
-              document.querySelector('optgroup[label="Groupchats"]').appendChild(option);
+              option.text = chat.nickname + (userData.username === chat.owner ? ' (Owner)' : '');
+              groupChats.appendChild(option);
             } else if (chat.type === 1 && chat.members.includes(userData.username)) {
-              option.value = chat._id;
-              option.text = chat.members.filter(member => member !== userData.username).join(', ');
-              document.querySelector('optgroup[label="DMS"]').appendChild(option);
+              const otherMember = chat.members.find(member => member !== userData.username);
+              option.text = otherMember;
+              dms.appendChild(option);
             }
-          }
+          });
         }
-      </script>
+      </SCRIPT>
 
-      <label id="theme" style="margin-left: auto;">Theme: </label>
-      <select id="theme-select" style="margin-left: auto;">
-        <option value="light">Light</option>
-        <option value="dark">Dark</option>
-      </select>
-    </div>
-  </div>
+      <LABEL id="theme" CLASS="theme-button">Theme: </LABEL>
+      <SELECT id="theme-select" CLASS="theme-button">
+        <OPTION VALUE="light">Light</OPTION>
+        <OPTION VALUE="dark">Dark</OPTION>
+      </SELECT>
+    </DIV>
+  </DIV>
 
-  <div style="display: flex; justify-content: center;">
-    <div style="width: 1280px;">
-      <div style="display: flex;">
-        <div style="width: 80%; margin-right: 10px;">
-          <div style="max-height: 440px; overflow-y: auto;">
-            <table id="post-table" bgcolor="#DDDDDD" border="1" cellpadding="2" cellspacing="2" width="100%">
-            </table>
-          </div>
-        </div>
-        <div style="width: 30%;">
-          <div style="max-height: 440px; overflow-y: auto;">
-            <table id="online-userlist" bgcolor="#DDDDDD" border="1" cellpadding="2" cellspacing="2" width="100%">
-            </table>
-          </div>
+  <DIV STYLE="DISPLAY: flex; JUSTIFY-CONTENT: center;">
+    <DIV STYLE="WIDTH: 1280px;">
+      <DIV STYLE="DISPLAY: flex;">
+        <DIV STYLE="WIDTH: 80%; MARGIN-RIGHT: 10px;">
+          <DIV STYLE="MAX-HEIGHT: 440px; OVERFLOW-Y: auto;">
+            <TABLE id="post-table" CLASS="post-color" BORDER="1" CELLSPACING="2" CELLPADDING="2" WIDTH="100%"></TABLE>
+          </DIV>
+        </DIV>
+        <DIV STYLE="WIDTH: 30%;">
+          <DIV STYLE="MAX-HEIGHT: 440px; OVERFLOW-Y: auto;">
+            <TABLE id="online-userlist" CLASS="post-color" BORDER="1" CELLSPACING="2" CELLPADDING="2" WIDTH="100%">
+            </TABLE>
+          </DIV>
+        </DIV>
+      </DIV>
+      <DIV STYLE="MARGIN-TOP: 10px;">
+        <TEXTAREA id="post-textbox" CLASS="textbox-color" STYLE="WIDTH: 100%; HEIGHT: 48px; RESIZE: none;"></TEXTAREA>
+        <DIV STYLE="DISPLAY: flex; JUSTIFY-CONTENT: flex-end;">
+          <BUTTON id="post-button" CLASS="theme-button" STYLE="MARGIN-LEFT: 10px;">Post</BUTTON>
+        </DIV>
 
-        </div>
-      </div>
-      <div style="margin-top: 10px;">
-        <textarea id="post-textbox" style="width: 100%; height: 48px; resize: none;"></textarea>
-        <div style="display: flex; justify-content: flex-end;">
-          <button id="post-button" style="margin-left: 10px;">Post</button>
-        </div>
-
-        <script type="module" src="sendpost.js"></script>
-        <script type="module">
+        <SCRIPT type="module" src="sendpost.js"></SCRIPT>
+        <SCRIPT type="module">
           import { sendPost } from './sendpost.js';
 
           document.getElementById('post-button').addEventListener('click', () => {
@@ -145,20 +150,20 @@
 
             if (currentChat === 'home') {
               sendPost("home", '');
-            } else 
-            if (currentChat === 'livechat') {
-              sendPost("livechat", 'livechat');
-            } else {
-              sendPost("groupchats", currentChat);
-            }
+            } else
+              if (currentChat === 'livechat') {
+                sendPost("livechat", 'livechat');
+              } else {
+                sendPost("groupchats", currentChat);
+              }
           });
-        </script>
+        </SCRIPT>
 
       </div>
     </div>
   </div>
 
-  <script language="Javascript" type="module">
+  <SCRIPT language="Javascript" type="module">
     import { displayPosts } from './displayposts.js';
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -179,15 +184,15 @@
       const chatType = channelSelect.options[channelSelect.selectedIndex].text;
 
       if (currentChat === 'home' || currentChat === 'livechat') {
-          displayPosts(currentChat, 'livechat');
-        } else {
-          displayPosts("groupchats", currentChat);
-        }
+        displayPosts(currentChat, 'livechat');
+      } else {
+        displayPosts("groupchats", currentChat);
+      }
     });
-  </script>
+  </SCRIPT>
 
-  <script language="Javascript" type="module" src="onlineusers.js"></script>
-  <script>
+  <SCRIPT language="Javascript" type="module" src="onlineusers.js"></SCRIPT>
+  <SCRIPT>
     const themeSelect = document.getElementById('theme-select');
     const body = document.body;
 
@@ -198,6 +203,7 @@
         body.classList.remove('dark-theme');
       }
     });
-  </script>
-</body>
-</html>
+  </SCRIPT>
+</BODY>
+
+</HTML>

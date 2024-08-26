@@ -25,7 +25,7 @@ fetch('https://api.meower.org/ulist')
         data.autoget.forEach(user => {
             const row = uList.insertRow();
             const cell = row.insertCell();
-            const avatarUrl = user.avatar ? `https://uploads.meower.org/icons/${user.avatar}` : '/public/img/defaultpfp.png';
+            const avatarUrl = user.avatar ? `https://uploads.meower.org/icons/${user.avatar}` : 'pawpal/public/img/defaultpfp.png';
             cell.innerHTML = `<img src=${avatarUrl} style="width: 15px; height: 15px; object-fit: cover;" alt="Icon"/>`
             
             const userData = getUserData()

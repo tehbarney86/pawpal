@@ -19,6 +19,14 @@ rainbow {
     background-clip: text;
 }
 
+blink {
+    animation: blink_keys 1s step-start infinite;
+}
+
+@keyframes blink_keys {
+    50% { opacity: 0; }
+}
+
 img.emoji {
     display: inline-block;
     vertical-align: middle;

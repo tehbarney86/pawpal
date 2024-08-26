@@ -1,29 +1,18 @@
-<!DOCTYPE html
-  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
 
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - PawPal</title>
+<HTML>
+
+<HEAD>
+
+  <TITLE>Login - PawPal</TITLE>
+
   <link rel="stylesheet" href="https://unpkg.com/98.css">
-  <style>
-    body {
-      background-color: #c0c0c0;
-      font-family: Arial, sans-serif;
-      color: #000000;
-    }
 
+  <STYLE>
     .login-container {
       width: 300px;
       padding: 20px;
       margin: 0 auto;
-    }
-
-    h4 {
-      text-align: center;
-      font-size: 16px;
-      color: #000000;
     }
 
     input[type="text"],
@@ -39,29 +28,31 @@
       font-size: 12px;
       margin-bottom: 10px;
     }
-  </style>
-</head>
+  </STYLE>
+</HEAD>
 
-<body>
-  <div id="login-container" class="login-container">
-    <div class="window" style="width: 300px">
-      <div class="title-bar">
-        <div class="title-bar-text">Login - PawPal!</div>
-        <div class="title-bar-controls">
+<BODY BGCOLOR=#c0c0c0 TEXT=#000000>
+  <DIV id="login-container" class="login-container">
+    <DIV class="window" style="width: 300px">
+      <DIV class="title-bar">
+        <DIV class="title-bar-text">Login - PawPal!</DIV>
+        <DIV class="title-bar-controls">
           <button aria-label="Minimize"></button>
           <button aria-label="Maximize"></button>
           <button aria-label="Close"></button>
-        </div>
-      </div>
-      <div class="window-body">
-        <h4>Login</h4>
+        </DIV>
+      </DIV>
+      <DIV class="window-body">
+        <center>
+          <h4 style="font-size: 16px">Login</h4>
+        </center>
         <form id="login-form" action="home.html" method="post">
           <label for="username">Username:</label>
           <input type="text" id="username" name="username" required="required" />
 
           <label for="password">Password:</label>
           <input type="password" id="password" name="password" required="required" />
-          <div id="invalid"></div>
+          <DIV id="invalid"></DIV>
 
           <input type="checkbox" id="remember-me" />
           <label for="remember-me">Remember me</label>
@@ -75,55 +66,54 @@
             <p>Version: b58862f</p>
           </center>
         </form>
-      </div>
-    </div>
-  </div>
-  <script>
-
+      </DIV>
+    </DIV>
+  </DIV>
+  <SCRIPT TYPE="text/javascript">
+  </SCRIPT>
+  <SCRIPT TYPE="text/javascript">
     document.getElementById('login-form').onsubmit = function (event) {
       event.preventDefault();
 
       var username = document.getElementById('username').value;
       var password = document.getElementById('password').value;
-      const rememberMe
-        = document.getElementById('remember-me').checked; // Get remember me value
+      var rememberMe = document.getElementById('remember-me').checked;
 
-      fetch('https://api.meower.org/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ username, password })
-      })
-        .then(response => response.json())
-        .then(data => {
-          if (!data.error) {
-            const ws = new WebSocket(`wss://server.meower.org/?v=1&token=${data.token}`);
-
-            ws.onmessage = (message) => {
-              const data = JSON.parse(message.data);
-              if (data.cmd === 'auth') {
-                const dataToStore = JSON.stringify(data.val);
-
-                if (rememberMe) {
-                  localStorage.setItem('userData', dataToStore);
-                } else {
-                  sessionStorage.setItem('userData', dataToStore);
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', 'https://api.meower.org/auth/login', true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            var data = JSON.parse(xhr.responseText);
+            if (!data.error) {
+              var ws = new WebSocket('wss://server.meower.org/?v=1&token=' + data.token);
+              ws.onmessage = function (event) {
+                var data = JSON.parse(event.data);
+                if (data.cmd === 'auth') {
+                  if (rememberMe) {
+                    localStorage.setItem('userData', JSON.stringify(data.val));
+                  } else {
+                    sessionStorage.setItem('userData', JSON.stringify(data.val));
+                  }
+                  ws.onclose();
                 }
+              };
 
-              }
-              ws.close();
-            };
-
-            document.getElementById('invalid').innerHTML = '';
-            window.location.replace('home.html');
+              document.getElementById('invalid').innerHTML = '';
+              window.location.href = 'home.html';
+            } else {
+              document.getElementById('invalid').innerHTML = 'Invalid credentials. Please try again.';
+            }
           } else {
-            document.getElementById('invalid').innerHTML = 'Invalid credentials. Please try again.';
+            document.getElementById('invalid').innerHTML = 'Error connecting to server.';
           }
-        });
+        }
+      };
+      xhr.send(JSON.stringify({ username: username, password: password }));
     };
+  </SCRIPT>
 
-  </script>
-</body>
+</BODY>
 
-</html>
+</HTML>
