@@ -104,22 +104,27 @@ export function displayPosts(context, chatID) {
     table.innerHTML = '';
 
     posts.forEach(function(post) {
-      var row = table.insertRow();
-      var userImageCell = row.insertCell();
-      var contentCell = row.insertCell();
-
-      userImageCell.style.width = '50px';
+      const row = table.insertRow();
+      const userImageCell = row.insertCell();
+      const contentCell = row.insertCell();
+  
+      // Style cells
+      userImageCell.style.width = '64px';
+      contentCell.style.width = 'calc(100% - 64px)';
       userImageCell.style.padding = '5px';
-
-      contentCell.style.width = 'calc(100% - 50px)';
+      contentCell.style.padding = '5px';
       contentCell.style.wordWrap = 'break-word';
       contentCell.style.wordBreak = 'break-all';
       contentCell.style.whiteSpace = 'pre-wrap';
-
-      var avatarUrl = post.author.avatar ? 'https://uploads.meower.org/icons/' + post.author.avatar : '/public/img/defaultpfp.png';
-      var userColor = post.author.avatar_color || '#000';
-      userImageCell.innerHTML = '<img src="' + avatarUrl + '" style="width: 50px; height: 50px; object-fit: cover;" alt="Icon"><hr><b><span style="color: ' + userColor + ';">' + post.author._id + '</span></b>';
-
+  
+      // User avatar and info
+      const avatarUrl = post.author.avatar ? `https://github.com/tehbarney86/meower95/blob/main/assets/pfps/${post.author._id}.png?raw=true` : 'https://github.com/tehbarney86/meower95/blob/main/assets/pfps/${post.author.pfp_data}.png?raw=true';
+      const userColor = post.author.avatar_color || '#000';
+      userImageCell.innerHTML = `
+        <img src="${avatarUrl}" width="64" height="64" alt="Icon">
+        <hr>
+        <b><font color="${userColor}">${post.author._id}</font></b>
+      `;
       var icon = userImageCell.querySelector('img');
       icon.addEventListener('mouseover', function() {
         icon.style.cursor = 'help';
